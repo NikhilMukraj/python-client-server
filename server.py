@@ -1,5 +1,6 @@
 import socket
 import threading
+import os
 
 #Variables for holding information about connections
 connections = []
@@ -34,11 +35,15 @@ class Client(threading.Thread):
                 self.signal = False
                 connections.remove(self)
                 break
+            
             if data != "":
                 print("ID " + str(self.id) + ": " + str(data.decode("utf-8")))
                 for client in connections:
                     if client.id != self.id:
                         client.socket.sendall(data)
+                
+                if data.decode("utf-8")[0:len('color ')] == 'color ':
+                    os.system('color ' + data.decode("utf-8")[len('color ')+1:])
 
 #Wait for new connections
 def newConnections(socket):
