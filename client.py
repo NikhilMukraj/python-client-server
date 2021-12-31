@@ -1,6 +1,11 @@
 import socket
 import threading
 import sys
+from colorama import init
+from termcolor import colored
+import os
+
+init()
 
 #Wait for incoming data from server
 #.decode is used to turn the message in bytes to a string
@@ -34,5 +39,8 @@ receiveThread.start()
 #Send data to server
 #str.encode is used to turn the string message into bytes so it can be sent across the network
 while True:
-    message = input()
+    message = input('[*]: ')
     sock.sendall(str.encode(message))
+
+    if message == 'exit':
+        os._exit(0)
