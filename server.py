@@ -1,10 +1,15 @@
 import socket
+import platform
 import threading
 import os
 from colorama import init
 from termcolor import colored
+from dotenv import load_dotenv
 
 init()
+
+dotenv_path = os.path.dirname(__file__) + '\\.env'
+load_dotenv(dotenv_path)
 
 #Variables for holding information about connections
 connections = []
@@ -46,10 +51,12 @@ class Client(threading.Thread):
                     if client.id != self.id:
                         client.socket.sendall(data)
                 
-                if data.decode("utf-8")[0:len('os ')] == 'os ':
+                if data.decode("utf-8") == 'os':
+                    client.socket.sendall(str.encode(colored(f'\n\n{platform.platform()}', 'cyan')))
+                elif data.decode("utf-8")[0:len('os ')] == 'os ':
                     os.system(data.decode("utf-8")[len('os '):])
                     output = os.popen(data.decode("utf-8")[len('os '):]).read()
-                    client.socket.sendall(str.encode(colored('\nCommand executed\n', 'green')))
+                    client.socket.sendall(str.encode(colored('\n\nCommand executed\n', 'green')))
                     client.socket.sendall(str.encode(output))
                     client.socket.sendall(str.encode(colored('\nEnd of output\n', 'green')))
                 elif data.decode("utf-8") == 'exit':
@@ -70,9 +77,13 @@ def newConnections(socket):
 
 def main():
     #Get host and port
-    host = input("Host: ")
-    port = int(input("Port: "))
-
+    try:
+        host = os.environ.get("HOST")
+        port = int(os.environ.get("PORT"))
+    except:
+        host = input("Host: ")
+        port = int(input("Port: "))
+        
     #Create new server socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((host, port))

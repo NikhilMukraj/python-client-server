@@ -4,8 +4,12 @@ import sys
 from colorama import init
 from termcolor import colored
 import os
+from dotenv import load_dotenv
 
 init()
+
+dotenv_path = os.path.dirname(__file__) + '\\.env'
+load_dotenv(dotenv_path)
 
 #Wait for incoming data from server
 #.decode is used to turn the message in bytes to a string
@@ -20,8 +24,12 @@ def receive(socket, signal):
             break
 
 #Get host and port
-host = input("Host: ")
-port = int(input("Port: "))
+try:
+    host = os.environ.get("HOST")
+    port = int(os.environ.get("PORT"))
+except:
+    host = input("Host: ")
+    port = int(input("Port: "))
 
 #Attempt connection to server
 try:
